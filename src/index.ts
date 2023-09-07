@@ -1,5 +1,5 @@
 import loadExtensionApi from "./extension_api_loader"
-import genFunction, {genModuleFuncs} from "./generator/function_generator";
+import {genModuleFuncs} from "./generator/function_generator";
 import {easyPrintList, easyPrintNode} from "./easy_print";
 import genEnum from "./generator/enum_generator";
 import genClass from "./generator/class_generator";

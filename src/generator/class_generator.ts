@@ -1,5 +1,5 @@
 import ts, {factory} from "typescript";
-import {FunctionInput, genMethod} from "./function_generator";
+import {FunctionInput, genMethod, ParamInput} from "./function_generator";
 import genType, {genIdent} from "./type_generator";
 
 export type MemberInput = {
@@ -22,11 +22,10 @@ export type PropertyInput = {
     name: string
     setter?: string
     getter: string
-    static?: boolean
 }
 
-export function genProperty(input: PropertyInput): (ts.GetAccessorDeclaration | ts.SetAccessorDeclaration)[] {
-    const modifiers = input.static == true ?
+export function genProperty(input: PropertyInput, isStatic: boolean = false): (ts.GetAccessorDeclaration | ts.SetAccessorDeclaration)[] {
+    const modifiers = isStatic ?
         [factory.createToken(ts.SyntaxKind.StaticKeyword)]
         : undefined
     let results: (ts.GetAccessorDeclaration | ts.SetAccessorDeclaration)[] = [
@@ -61,11 +60,27 @@ export function genProperty(input: PropertyInput): (ts.GetAccessorDeclaration | 
     return results
 }
 
+type ConstructorInput = {
+    arguments?: ParamInput[]
+}
+
 type ClassInput = {
     name: string
+    constructors?: ConstructorInput[],
     constants?: MemberInput[]
     members?: MemberInput[]
     methods?: FunctionInput[]
+}
+
+function genConstructor(input: ConstructorInput, cls: string): ts.MethodDeclaration {
+    return genMethod(
+        {
+            name: "new",
+            ...input,
+            return_type: cls
+        },
+        true
+    )
 }
 
 export default function genClass(input: ClassInput): ts.ClassDeclaration {
@@ -75,15 +90,14 @@ export default function genClass(input: ClassInput): ts.ClassDeclaration {
         undefined,
         undefined,
         [
-            ...(input.constants?.flatMap(c => {
-                return genProperty({
+            ...(input.constants?.flatMap(c => genProperty({
                     ...c,
-                    static: true,
                     getter: ""
-                })
-            }) ?? []),
+                }, true)
+            ) ?? []),
             ...(input.members?.map(genMember) ?? []),
-            ...(input.methods?.map(genMethod) ?? [])
+            ...(input.constructors?.map(c => genConstructor(c, input.name)) ?? []),
+            ...(input.methods?.map(m => genMethod(m)) ?? [])
         ]
     )
 }

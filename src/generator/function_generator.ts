@@ -35,9 +35,9 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
     )
 }
 
-export function genMethod(input: FunctionInput): ts.MethodDeclaration {
+export function genMethod(input: FunctionInput, isStatic: boolean = false): ts.MethodDeclaration {
     return factory.createMethodDeclaration(
-        undefined,
+        isStatic ? [factory.createModifier(ts.SyntaxKind.StaticKeyword)] : undefined,
         undefined,
         genIdent(input.name),
         undefined,
