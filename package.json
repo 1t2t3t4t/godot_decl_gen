@@ -14,9 +14,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.2.2"
+  },
   "devDependencies": {
     "@types/node": "^20.5.9",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "ts-node": "^10.9.1"
   }
 }
