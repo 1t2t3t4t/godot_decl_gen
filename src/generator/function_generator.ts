@@ -35,3 +35,13 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
         undefined
     )
 }
+
+export function genModuleFuncs(name: string, input: FunctionInput[]): ts.ModuleDeclaration {
+    return factory.createModuleDeclaration(
+        [factory.createToken(ts.SyntaxKind.DeclareKeyword)],
+        factory.createIdentifier(name),
+        factory.createModuleBlock(
+            input.map(genFunction)
+        )
+    )
+}
