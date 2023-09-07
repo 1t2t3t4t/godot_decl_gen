@@ -7,37 +7,34 @@ export type EnumCase = {
 }
 
 export type EnumInput = {
-    exported?: boolean,
     name: string,
-    cases: EnumCase[]
+    values: EnumCase[]
 }
 
-export default class EnumGenerator {
-    gen(input: EnumInput): EnumDeclaration {
-        let sanitizedName = input.name
-        if (sanitizedName.includes(".")) {
-            sanitizedName = sanitizedName.split(".").join("_")
-            GeneratorArtifacts.shared.addRenameMap(sanitizedName, input.name)
-        }
-
-        return factory.createEnumDeclaration(
-            input.exported ? [factory.createModifier(ts.SyntaxKind.ExportKeyword)] : undefined,
-            factory.createIdentifier(sanitizedName),
-            input.cases.map(this.genCase.bind(this))
-        )
+export default function genEnum(input: EnumInput): EnumDeclaration {
+    let sanitizedName = input.name
+    if (sanitizedName.includes(".")) {
+        sanitizedName = sanitizedName.split(".").join("_")
+        GeneratorArtifacts.shared.addRenameMap(sanitizedName, input.name)
     }
 
-    private genCase(enumCase: EnumCase): EnumMember {
-        const enumValue = (value: string | number): NumericLiteral | StringLiteral => {
-            if (typeof value === "string") {
-                return factory.createStringLiteral(value)
-            } else {
-                return factory.createNumericLiteral(value.toString())
-            }
+    return factory.createEnumDeclaration(
+        [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(sanitizedName),
+        input.values.map(genCase)
+    )
+}
+
+function genCase(enumCase: EnumCase): EnumMember {
+    const enumValue = (value: string | number): NumericLiteral | StringLiteral => {
+        if (typeof value === "string") {
+            return factory.createStringLiteral(value)
+        } else {
+            return factory.createNumericLiteral(value.toString())
         }
-        return factory.createEnumMember(
-            factory.createIdentifier(enumCase.name),
-            enumCase.value ? enumValue(enumCase.value) : undefined
-        )
     }
+    return factory.createEnumMember(
+        factory.createIdentifier(enumCase.name),
+        enumCase.value ? enumValue(enumCase.value) : undefined
+    )
 }
