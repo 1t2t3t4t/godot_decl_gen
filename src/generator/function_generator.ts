@@ -8,7 +8,6 @@ export type FunctionInput = {
 }
 
 export type ParamInput = {
-    isVarargs?: boolean,
     name: string,
     type?: string
 }
@@ -29,6 +28,19 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         undefined,
         genIdent(input.name),
+        undefined,
+        input.arguments?.map(p => genParam(p)) ?? [],
+        genType(input.return_type),
+        undefined
+    )
+}
+
+export function genMethod(input: FunctionInput): ts.MethodDeclaration {
+    return factory.createMethodDeclaration(
+        undefined,
+        undefined,
+        genIdent(input.name),
+        undefined,
         undefined,
         input.arguments?.map(p => genParam(p)) ?? [],
         genType(input.return_type),

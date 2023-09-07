@@ -2,6 +2,7 @@ import loadExtensionApi from "./extension_api_loader"
 import genFunction, {genModuleFuncs} from "./generator/function_generator";
 import {easyPrintList, easyPrintNode} from "./easy_print";
 import genEnum from "./generator/enum_generator";
+import genClass from "./generator/class_generator";
 
 const main = async () => {
     const api = await loadExtensionApi()
@@ -11,6 +12,10 @@ const main = async () => {
     utilsFuncGroup.forEach((value, key) => {
         console.log(easyPrintNode(genModuleFuncs(key, value)))
     })
+
+    const classes = api.builtin_classes.map(genClass)
+
+    console.log(easyPrintList(classes))
 
     process.exit(0)
 }

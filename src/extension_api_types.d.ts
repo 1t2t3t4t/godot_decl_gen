@@ -6,7 +6,7 @@ export interface ExtensionApi {
   global_enums: GlobalEnum[]
   utility_functions: UtilityFunction[]
   builtin_classes: BuiltinClass[]
-  classes: Class2[]
+  classes: Class[]
   singletons: Singleton[]
   native_structures: NativeStructure[]
 }
@@ -32,10 +32,10 @@ export interface Size {
 
 export interface BuiltinClassMemberOffset {
   build_configuration: string
-  classes: Class[]
+  classes: MemberOffsetClass[]
 }
 
-export interface Class {
+export interface MemberOffsetClass {
   name: string
   members: Member[]
 }
@@ -57,6 +57,19 @@ export interface BuiltinClass {
   members?: Member2[]
   constants?: Constant[]
   enums?: Enum[]
+}
+
+export interface Class {
+  name: string
+  is_refcounted: boolean
+  is_instantiable: boolean
+  inherits?: string
+  api_type: string
+  enums?: Enum2[]
+  methods?: Method2[]
+  properties?: Property[]
+  signals?: Signal[]
+  constants?: Constant2[]
 }
 
 export interface Operator {
@@ -115,19 +128,6 @@ export interface Constant {
   name: string
   type: string
   value: string
-}
-
-export interface Class2 {
-  name: string
-  is_refcounted: boolean
-  is_instantiable: boolean
-  inherits?: string
-  api_type: string
-  enums?: Enum2[]
-  methods?: Method2[]
-  properties?: Property[]
-  signals?: Signal[]
-  constants?: Constant2[]
 }
 
 export interface GlobalEnum {
@@ -207,4 +207,3 @@ export interface NativeStructure {
   name: string
   format: string
 }
-  
