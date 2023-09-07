@@ -22,12 +22,16 @@ export type PropertyInput = {
     name: string
     setter?: string
     getter: string
+    static?: boolean
 }
 
 export function genProperty(input: PropertyInput): (ts.GetAccessorDeclaration | ts.SetAccessorDeclaration)[] {
+    const modifiers = input.static == true ?
+        [factory.createToken(ts.SyntaxKind.StaticKeyword)]
+        : undefined
     let results: (ts.GetAccessorDeclaration | ts.SetAccessorDeclaration)[] = [
         factory.createGetAccessorDeclaration(
-            undefined,
+            modifiers,
             genIdent(input.name),
             [],
             genType(input.type),
@@ -59,6 +63,8 @@ export function genProperty(input: PropertyInput): (ts.GetAccessorDeclaration | 
 
 type ClassInput = {
     name: string
+    constants?: MemberInput[]
+    members?: MemberInput[]
     methods?: FunctionInput[]
 }
 
@@ -69,6 +75,14 @@ export default function genClass(input: ClassInput): ts.ClassDeclaration {
         undefined,
         undefined,
         [
+            ...(input.constants?.flatMap(c => {
+                return genProperty({
+                    ...c,
+                    static: true,
+                    getter: ""
+                })
+            }) ?? []),
+            ...(input.members?.map(genMember) ?? []),
             ...(input.methods?.map(genMethod) ?? [])
         ]
     )
