@@ -1,5 +1,6 @@
 import ts, { EnumDeclaration, EnumMember, NumericLiteral, StringLiteral, factory } from "typescript"
 import GeneratorArtifacts from "./generator_artifacts"
+import {genIdent} from "./type_generator";
 
 export type EnumCase = {
     name: string,
@@ -12,15 +13,9 @@ export type EnumInput = {
 }
 
 export default function genEnum(input: EnumInput): EnumDeclaration {
-    let sanitizedName = input.name
-    if (sanitizedName.includes(".")) {
-        sanitizedName = sanitizedName.split(".").join("_")
-        GeneratorArtifacts.shared.addRenameMap(sanitizedName, input.name)
-    }
-
     return factory.createEnumDeclaration(
         [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-        factory.createIdentifier(sanitizedName),
+        genIdent(input.name),
         input.values.map(genCase)
     )
 }
@@ -34,7 +29,7 @@ function genCase(enumCase: EnumCase): EnumMember {
         }
     }
     return factory.createEnumMember(
-        factory.createIdentifier(enumCase.name),
+        genIdent(enumCase.name),
         enumCase.value ? enumValue(enumCase.value) : undefined
     )
 }

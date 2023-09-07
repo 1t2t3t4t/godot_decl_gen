@@ -1,5 +1,5 @@
 import ts, {factory} from "typescript";
-import genType from "./type_generator";
+import genType, {genIdent} from "./type_generator";
 
 export type FunctionInput = {
     name: string,
@@ -17,7 +17,7 @@ export function genParam(input: ParamInput): ts.ParameterDeclaration {
     return factory.createParameterDeclaration(
         undefined,
         undefined,
-        input.name,
+        genIdent(input.name),
         undefined,
         genType(input.type),
         undefined
@@ -28,7 +28,7 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
     return factory.createFunctionDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         undefined,
-        input.name,
+        genIdent(input.name),
         undefined,
         input.arguments?.map(p => genParam(p)) ?? [],
         genType(input.return_type),
@@ -39,7 +39,7 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
 export function genModuleFuncs(name: string, input: FunctionInput[]): ts.ModuleDeclaration {
     return factory.createModuleDeclaration(
         [factory.createToken(ts.SyntaxKind.DeclareKeyword)],
-        factory.createIdentifier(name),
+        genIdent(name),
         factory.createModuleBlock(
             input.map(genFunction)
         )
