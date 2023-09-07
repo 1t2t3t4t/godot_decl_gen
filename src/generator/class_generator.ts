@@ -67,7 +67,7 @@ type ConstructorInput = {
 type ClassInput = {
     name: string
     constructors?: ConstructorInput[],
-    constants?: MemberInput[]
+    constants?: ConstantInput[]
     members?: MemberInput[]
     methods?: FunctionInput[]
 }
@@ -83,6 +83,19 @@ function genConstructor(input: ConstructorInput, cls: string): ts.MethodDeclarat
     )
 }
 
+type ConstantInput = {
+    name: string
+    type?: string
+}
+
+function genConstant(input: ConstantInput): ts.ClassElement[] {
+    return genProperty({
+        name: input.name,
+        type: input.type ?? "int",
+        getter: ""
+    }, true)
+}
+
 export default function genClass(input: ClassInput): ts.ClassDeclaration {
     return factory.createClassDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -90,11 +103,7 @@ export default function genClass(input: ClassInput): ts.ClassDeclaration {
         undefined,
         undefined,
         [
-            ...(input.constants?.flatMap(c => genProperty({
-                    ...c,
-                    getter: ""
-                }, true)
-            ) ?? []),
+            ...(input.constants?.flatMap(genConstant) ?? []),
             ...(input.members?.map(genMember) ?? []),
             ...(input.constructors?.map(c => genConstructor(c, input.name)) ?? []),
             ...(input.methods?.map(m => genMethod(m)) ?? [])

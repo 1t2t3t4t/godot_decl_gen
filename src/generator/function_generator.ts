@@ -35,7 +35,21 @@ export default function genFunction(input: FunctionInput): ts.FunctionDeclaratio
     )
 }
 
-export function genMethod(input: FunctionInput, isStatic: boolean = false): ts.MethodDeclaration {
+export type MethodInput = {
+    name: string,
+    arguments?: ParamInput[],
+    return_type?: string
+    return_value?: {
+        type: string
+    }
+}
+
+export function genMethod(input: MethodInput, isStatic: boolean = false): ts.MethodDeclaration {
+    let returnType = genType(input.return_type)
+    if (input.return_value) {
+        returnType = genType(input.return_value.type)
+    }
+
     return factory.createMethodDeclaration(
         isStatic ? [factory.createModifier(ts.SyntaxKind.StaticKeyword)] : undefined,
         undefined,
@@ -43,7 +57,7 @@ export function genMethod(input: FunctionInput, isStatic: boolean = false): ts.M
         undefined,
         undefined,
         input.arguments?.map(p => genParam(p)) ?? [],
-        genType(input.return_type),
+        returnType,
         undefined
     )
 }

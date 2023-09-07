@@ -13,7 +13,7 @@ const main = async () => {
         console.log(easyPrintNode(genModuleFuncs(key, value)))
     })
 
-    const classes = api.builtin_classes.map(genClass)
+    const classes = api.classes.map(genClass)
 
     console.log(easyPrintList(classes))
 

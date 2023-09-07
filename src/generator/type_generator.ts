@@ -16,6 +16,21 @@ export function genIdent(name: string): ts.Identifier {
     return factory.createIdentifier(name)
 }
 
+const specialGdType = [
+    "String",
+    "StringName",
+    "Array"
+]
+
+function refType(type: string): ts.TypeReferenceType {
+    if (specialGdType.includes(type)) {
+        type = "Gd" + type
+    }
+    return factory.createTypeReferenceNode(
+        genIdent(type)
+    )
+}
+
 export default function genType(type?: string): ts.TypeNode {
     if (!type) {
         return factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
@@ -27,17 +42,7 @@ export default function genType(type?: string): ts.TypeNode {
             return factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)
         case "bool":
             return factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword)
-        case "String":
-            return factory.createTypeReferenceNode(
-                genIdent("GdString")
-            )
-        case "StringName":
-            return factory.createTypeReferenceNode(
-                genIdent("GdStringName")
-            )
         default:
-            return factory.createTypeReferenceNode(
-                genIdent(type)
-            )
+            return refType(type)
     }
 }
