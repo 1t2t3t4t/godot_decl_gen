@@ -1,6 +1,6 @@
 import ts, {factory} from "typescript";
 import {FunctionInput, genMethod, ParamInput} from "./function_generator";
-import genType, {genIdent} from "./type_generator";
+import genType, {genIdent, refTypeName} from "./type_generator";
 
 export type MemberInput = {
     name: string
@@ -66,7 +66,8 @@ type ConstructorInput = {
 
 type ClassInput = {
     name: string
-    constructors?: ConstructorInput[],
+    inherits?: string
+    constructors?: ConstructorInput[]
     constants?: ConstantInput[]
     members?: MemberInput[]
     methods?: FunctionInput[]
@@ -97,11 +98,18 @@ function genConstant(input: ConstantInput): ts.ClassElement[] {
 }
 
 export default function genClass(input: ClassInput): ts.ClassDeclaration {
+    const heritageClause = input.inherits ? [factory.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [factory.createExpressionWithTypeArguments(
+            factory.createIdentifier(refTypeName(input.inherits)),
+            undefined
+        )]
+    )] : undefined
     return factory.createClassDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         genIdent(input.name),
         undefined,
-        undefined,
+        heritageClause,
         [
             ...(input.constants?.flatMap(genConstant) ?? []),
             ...(input.members?.map(genMember) ?? []),

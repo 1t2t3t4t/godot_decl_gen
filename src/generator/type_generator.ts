@@ -5,15 +5,23 @@ export function genIdent(name: string): ts.Identifier {
     const originalName = name
     if (name == "typeof") {
         name = "typeOf"
-        GeneratorArtifacts.shared.addRenameMap(name, originalName)
+    }
+
+    if (name == "with") {
+        name = "withVal"
+    }
+    if (name == "default") {
+        name = "defaultVal"
     }
 
     if (name.includes(".")) {
         name = name.split(".").join("_")
-        GeneratorArtifacts.shared.addRenameMap(name, originalName)
     }
 
-    return factory.createIdentifier(name)
+    if (originalName !== name) {
+        GeneratorArtifacts.shared.addRenameMap(name, originalName)
+    }
+    return factory.createIdentifier(refTypeName(name))
 }
 
 const specialGdType = [
@@ -22,12 +30,16 @@ const specialGdType = [
     "Array"
 ]
 
-function refType(type: string): ts.TypeReferenceType {
+export function refTypeName(type: string): string {
     if (specialGdType.includes(type)) {
         type = "Gd" + type
     }
+    return type
+}
+
+function refType(type: string): ts.TypeReferenceType {
     return factory.createTypeReferenceNode(
-        genIdent(type)
+        genIdent(refTypeName(type))
     )
 }
 
